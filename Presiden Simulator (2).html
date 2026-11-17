@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Presiden Simulator</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{--n:#0b1a3a;--g:#e8b33a;--k:#f3e9c8;--r:#c8393a;--h:#3a9c4e;--acc:#e8b33a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--n);color:var(--k);font:10px/1.9 "Press Start 2P",monospace;min-height:100vh}
+button{font:inherit;color:inherit;cursor:pointer}
+.scr{display:none;max-width:980px;margin:0 auto;padding:12px}
+.scr.on{display:block}
+.box{border:4px solid var(--g);background:#10234d;box-shadow:4px 4px 0 #000}
+#st{text-align:center;padding-top:3vh}
+.pal canvas{display:block;margin:0 auto;image-rendering:pixelated}
+.pal{position:relative;width:fit-content;max-width:560px;margin:0 auto 14px;border:4px solid var(--g);background:linear-gradient(#1a0a14,#5a1a1a 60%,#c8393a);overflow:hidden;box-shadow:4px 4px 0 #000}
+.pal .rf{position:absolute;bottom:130px;left:70px;right:70px;height:34px;background:var(--g);clip-path:polygon(0 100%,50% 0,100% 100%)}
+.pal .bl{position:absolute;bottom:40px;left:90px;right:90px;height:90px;border:3px solid #000;background:repeating-linear-gradient(90deg,var(--k) 0 14px,#b8a878 14px 22px)}
+.pal .gr{position:absolute;bottom:0;left:0;right:0;height:40px;background:#2a1a10}
+.fl{position:absolute;bottom:62px;width:28px;height:48px;background:#ff8a1f;clip-path:polygon(50% 0,100% 100%,0 100%);animation:fk .3s steps(2) infinite}
+.fl:nth-child(even){background:#ffd23a;animation-duration:.42s}
+@keyframes fk{50%{transform:scaleY(.8) translateY(4px)}}
+.sm{position:absolute;bottom:150px;width:18px;height:18px;background:#555;opacity:.7;animation:up 2.6s linear infinite}
+@keyframes up{to{transform:translateY(-110px) scale(2.2);opacity:0}}
+.tsp{position:absolute;bottom:36px;left:14px;transform:scale(.7);transform-origin:bottom left}
+.cap{position:absolute;top:8px;left:0;right:0;color:#fff;font-size:10px;text-shadow:2px 2px 0 #000;animation:cp .8s steps(2) infinite}
+@keyframes cp{50%{opacity:.3}}
+#st h1{color:var(--g);font-size:28px;line-height:1.5;text-shadow:4px 4px 0 var(--r)}
+#st p{max-width:520px;margin:20px auto;color:var(--k)}
+.btn{background:var(--g);color:var(--n);border:4px solid var(--k);padding:12px 18px;box-shadow:4px 4px 0 #000}
+.btn:focus-visible{animation:bl .4s steps(2) infinite;outline:none}
+@media(hover:hover){.btn:hover{animation:bl .4s steps(2) infinite}}
+@keyframes bl{50%{background:var(--k)}}
+#hud{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:8px;margin-bottom:12px}
+.s{font-size:8px}.s div.t{display:flex;justify-content:space-between}
+.bar{height:12px;border:2px solid var(--k);background:var(--n);margin-top:4px}
+.bar i{display:block;height:100%;background:var(--h);transition:width .6s steps(8)}
+.bar i.bad{background:var(--r)}
+#bb{text-align:right;color:var(--g);font-size:9px;margin-bottom:6px}
+#main{display:flex;gap:12px;align-items:stretch}
+#sw{width:200px;flex:none;padding:12px;text-align:center}
+#sp{height:150px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;animation:bob .8s steps(1) infinite}
+@keyframes bob{50%{transform:translateY(4px)}}
+.hd{width:48px;height:48px;background:#e0a878;position:relative;border-top:10px solid #2a1a10}
+.hd i{position:absolute;top:14px;width:6px;height:6px;background:#000}
+.hd i:first-child{left:10px}.hd i:last-child{right:10px}
+.hd i{animation:bk 3.2s infinite}@keyframes bk{94%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+.hd u{position:absolute;left:17px;top:34px;width:14px;height:3px;background:#000;text-decoration:none}
+.happy .hd u{height:7px;border-radius:0 0 9px 9px;background:#7a1a1a}
+.sad .hd u{width:10px;left:19px;top:36px;border-radius:6px 6px 0 0}
+.angry .hd u{height:5px;border-radius:7px 7px 0 0}
+.angry .hd i{height:3px;background:#c8393a}
+.shock .hd i{width:8px;height:8px}
+.shock .hd u{width:9px;height:11px;left:20px;border-radius:50%;background:#400}
+.angry .hd{animation:shk .12s steps(2) infinite}
+.happy .hd,.shock .hd{animation:hop .45s steps(2) infinite}
+.sad .hd{transform:rotate(-7deg) translateY(4px)}
+@keyframes shk{50%{transform:translateX(3px)}}@keyframes hop{50%{transform:translateY(-6px)}}
+.bd{width:84px;height:62px;background:var(--c,#1d3b7a);position:relative;border:2px solid #000}
+.bd b{position:absolute;left:35px;top:0;width:10px;height:34px;background:var(--r)}
+#nm{margin-top:10px;font-size:8px;color:var(--g)}
+#dw{flex:1;padding:14px;display:flex;flex-direction:column;min-height:300px;position:relative}
+#tx{min-height:130px;cursor:pointer}
+#ch{display:flex;flex-direction:column;gap:8px;margin-top:auto}
+#ch .btn{text-align:left;font-size:9px;line-height:1.7;background:var(--k)}
+#pop{position:absolute;right:10px;top:6px;pointer-events:none}
+#pop span{display:block;font-size:9px;animation:fl 1.5s forwards;text-shadow:2px 2px 0 #000}
+@keyframes fl{to{transform:translateY(-30px);opacity:0}}
+#fd{position:fixed;inset:0;background:#000;display:none;align-items:center;justify-content:center;text-align:center;color:var(--g);z-index:9;padding:20px;line-height:2.2}
+#fd.on{display:flex;animation:fi .5s}
+@keyframes fi{from{opacity:0}}
+#en{text-align:center;padding-top:6vh}
+#en .box{padding:18px;border-color:var(--acc)}
+#en h2{color:var(--acc);font-size:20px;line-height:1.5}
+#en p{max-width:640px;margin:14px auto}
+#sum{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;font-size:8px;margin:16px 0}
+@media(max-width:600px){
+body{font-size:9px}#st h1{font-size:20px}
+#hud{grid-template-columns:repeat(3,1fr)}
+#main{flex-direction:column}#sw{width:100%;display:flex;align-items:center;gap:14px;text-align:left}
+#sp{height:110px;margin-top:-22px;scale:.8;transform-origin:bottom center}#sum{grid-template-columns:repeat(3,1fr)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+/* ===== RESPONSIF: safe-area, dvh, tap target, breakpoint 420 / 600 / landscape / 1100 ===== */
+html{-webkit-text-size-adjust:100%}#sp,.hd,.bd{flex:none}body{min-height:100dvh;overflow-x:hidden}
+.scr{padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
+#tx,#ch .btn,#ed,#ex{overflow-wrap:anywhere}
+.pal{max-width:100%}
+#gm>div:first-child{flex-wrap:wrap;gap:6px}
+@media(pointer:coarse){.btn{min-height:44px}}
+@media(max-width:600px){#dw{min-height:240px}#tx{min-height:110px}#en h2{font-size:14px}#st{padding-top:2vh}}
+@media(max-width:420px){#hud{grid-template-columns:repeat(2,1fr)}.s:last-child{grid-column:span 2}#st h1{font-size:17px}.btn{padding:10px 12px}}
+@media(max-height:480px){#sp{scale:.8;height:110px;margin-top:-22px;transform-origin:bottom center}#dw{min-height:200px}#st{padding-top:1vh}}
+@media(min-width:1100px){body{font-size:12px}.scr{max-width:1100px}.s{font-size:9px}#ch .btn{font-size:11px}}
+</style></head><body>
+
+<section id="st" class="scr on">
+ <div class='pal'><canvas id='pc' width='200' height='120'></canvas><div class='cap'>ISTANA TERBAKAR!</div></div>
+ <h1>PRESIDEN<br>SIMULATOR</h1>
+ <p>Hari pelantikan belum usai, tapi istana sudah terbakar. Siapa yang menyulutnya? Jawabannya tersembunyi di sebuah buku hitam. Setiap pilihan ada harganya.</p>
+ <button class="btn" onclick="startGame()">MULAI</button>
+</section>
+
+<section id="gm" class="scr">
+ <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><button id="mu" class="btn" style="padding:6px 8px;font-size:8px" onclick="toggleMute()">MUSIK: ON</button><div id="bb" style="margin:0"></div></div>
+ <div id="hud" class="box"></div>
+ <div id="main">
+  <div id="sw" class="box"><div id="sp"><div class="hd"><i></i><i></i><u></u></div><div class="bd"><b></b></div></div><div id="nm"></div></div>
+  <div id="dw" class="box"><div id="pop"></div><div id="tx"></div><div id="ch"></div></div>
+ </div>
+</section>
+
+<section id="en" class="scr"><div class="box">
+ <div style="color:var(--k);font-size:8px">ENDING</div>
+ <h2 id="et"></h2><p id="ed"></p><p id="ex" style="font-size:8px;color:var(--g)"></p><div id="sum"></div>
+ <button class="btn" onclick="startGame()">MAIN LAGI</button>
+</div></section>
+
+<div id="fd"></div>
+
+<script>
+// ===== STATE =====
+const state={eko:50,rak:55,mil:50,dip:50,kor:20,trust:5,flags:new Set(),sceneIndex:0,babak:1};
+const START={eko:50,rak:55,mil:50,dip:50,kor:20,trust:5};
+const K={e:"eko",r:"rak",m:"mil",d:"dip",k:"kor",t:"trust"}; // t = kepercayaan Ajudan (tersembunyi)
+const NM={eko:"EKONOMI",rak:"RAKYAT",mil:"MILITER",dip:"DIPLOMASI",kor:"KORUPSI"};
+const BT=["100 HARI PERTAMA","UJIAN EKONOMI","GEJOLAK SOSIAL","PANGGUNG DUNIA","LEGACY"];
+
+// ===== KARAKTER (nama + warna jas) =====
+const CH={
+ pres:{n:"PRESIDEN",c:"#1d3b7a"},aj:{n:"AJUDAN",c:"#3a9c4e"},
+ men:{n:"MENTERI EKONOMI",c:"#7a3a9c"},jen:{n:"JENDERAL",c:"#777777"},
+ opo:{n:"KETUA OPOSISI",c:"#8a1f22"},rak:{n:"RAKYAT",c:"#7a5230"}
+};
+
+// ===== STORY =====
+// S(babak, pembicara, teks, [[teks pilihan, {e,r,m,d,k}, flag, balasan]], [flagUntukTeksAlternatif, teksAlternatif])
+const S=(b,sp,text,ch,alt)=>({babak:b,speaker:sp,text,alt,choices:ch.map(([text,effects,flag,reply])=>({text,effects,flag,reply}))});
+const BASE=[
+// --- BABAK 1 ---
+S(1,"aj","Pak, sebelum mulai bekerja: presiden lama meninggalkan map lusuh ini. Namanya Buku Hitam. Beliau berpesan, “Jangan dibaca sendirian.”",[
+ ["Baca halaman pertama",{k:-2,t:1},"hal1","Ada angka janggal: dana tiap bulan mengalir ke “Yayasan Garuda Sejahtera”. Siapa pemiliknya?"],
+ ["Simpan di brankas, belum dibuka",{t:-1},"","Brankas dikunci. Rasa penasaran tidak."],
+ ["Baca bersama Ajudan",{t:2,r:1},"hal1","Ajudan membaca dengan wajah pucat. Anda tidak bertanya kenapa."]]),
+S(1,"aj","Selamat, Pak Presiden. Hari pertama: susun kabinet. Antrean titipan partai sudah mengular sampai parkiran.",[
+ ["Kabinet teknokrat, ahli bukan titipan",{e:4,d:3,r:-3,k:-3},"kabinet_teknokrat","Partai-partai cemberut, para ahli tersenyum."],
+ ["Kabinet koalisi, bagi-bagi kursi",{r:3,m:2,k:8,e:-2},"kabinet_koalisi","Parlemen aman. Kas negara agak gemetar."]]),
+S(1,"men","Anggaran jebol, Pak. BBM bersubsidi menyedot dana seperti sedotan raksasa.",[
+ ["Naikkan harga BBM",{e:8,r:-8},"bbm_naik","Kas lega, dompet rakyat menangis."],
+ ["Pertahankan subsidi",{r:6,e:-6},"bbm_subsidi","Rakyat senang, kas makin tipis."],
+ ["Naik bertahap plus bansos",{e:3,r:-1,k:2},"bbm_bertahap","Tak ada yang puas sepenuhnya, tak ada yang marah."]]),
+S(1,"aj","Ada desas-desus kebocoran anggaran di banyak kementerian. Mau diaudit?",[
+ ["Audit total semua kementerian",{k:-10,r:4,m:-1,e:-2},"audit_total","Banyak yang mendadak sakit perut."],
+ ["Audit terbatas",{k:-3},"audit_terbatas","Setengah bersih lebih baik dari tak sama sekali."],
+ ["Fokus kerja saja",{e:2,k:6},"audit_tutup","Tenang. Terlalu tenang."]]),
+S(1,"aj","Duta Besar Valdoria menawarkan pakta dagang. Syaratnya: pangkalan militer di pulau terluar kita.",[
+ ["Terima pakta dan pangkalan",{e:6,d:6,m:-5},"pakta_valdoria","Valdoria bersulang. Para jenderal menatap kosong."],
+ ["Tolak, kita mandiri",{m:4,d:-5,r:3},"tolak_valdoria","Harga diri utuh, pasar ekspor menyempit."],
+ ["Dagang saja, tanpa pangkalan",{e:3,d:3,m:2},"","Duta Besar tersenyum kecut. Itu tanda perundingan sehat."]]),
+S(1,"men","Program unggulan: makan siang gratis untuk semua anak sekolah. Viral, populer, dan butuh anggaran sebesar gunung.",[
+ ["Jalankan serentak nasional",{r:7,e:-7,k:2},"makan_gratis","Anak-anak senang. Dapur sekolah kewalahan dan kas negara menjerit."],
+ ["Uji coba di daerah dulu",{r:2,e:-1,k:-1},"","Sepuluh kabupaten kebagian. Sisanya menulis surat protes dengan sopan."],
+ ["Libatkan UMKM lokal sebagai penyedia",{r:4,e:1,k:2},"makan_umkm","Warteg jadi vendor resmi. Ibu kantin mendadak jadi pemasok nasional."]]),
+S(1,"aj","Protokol istana mengajukan renovasi kamar mandi presiden: 40 miliar, lengkap dengan lantai marmer berpemanas.",[
+ ["Tolak, pakai yang ada",{r:3,k:-3,t:1},"","Kamar mandi lama tetap bocor. Reputasi Anda tidak."],
+ ["Setujui demi martabat negara",{k:5,r:-3},"renovasi","Keran emas terpasang. Netizen menghitung berapa mangkuk bakso itu."],
+ ["Alihkan dananya ke puskesmas",{r:4,e:-1,k:-1,t:1},"","Puskesmas dapat atap baru. Protokol dapat pandangan sinis."]]),
+S(1,"men","Menteri dan Jenderal berebut jatah anggaran. Kopi di ruang rapat sudah dingin sejak jam pertama.",[
+ ["Bagi rata, semua kecewa merata",{e:1,m:1,r:1},"","Keadilan versi kalkulator. Semua pulang sambil menggerutu."],
+ ["Utamakan pertahanan",{m:6,e:-3},"","Jenderal tersenyum. Menteri Ekonomi menghitung ulang."],
+ ["Utamakan pendidikan dan kesehatan",{r:4,e:2,m:-4},"","Menteri senang, Jenderal menatap peta dengan murung."]]),
+S(1,"rak","Ribuan mahasiswa dan buruh mengepung gedung negara. Spanduknya kreatif, kata-katanya kurang sopan.",[
+ ["Temui mereka langsung",{r:6,m:-1},"temui_demo","Anda dilempari botol air. Kamera merekam kepala dingin Anda."],
+ ["Bubarkan dengan aparat",{m:4,r:-8,k:2},"represif","Jalanan sepi. Media sosial riuh."],
+ ["Kirim menteri saja",{r:1},"","Menteri pulang membawa tiga tuntutan dan satu sandal."]]),
+// --- BABAK 2 ---
+S(2,"men","Viral di media sosial: minyak goreng langka, sementara kebun sawit membuka lahan baru. Emak-emak antre, korporasi untung.",[
+ ["Larang ekspor CPO sementara",{r:6,e:-4,d:-3},"larang_cpo","Minyak kembali ke pasar. Pengusaha sawit menggerutu sambil tetap kaya."],
+ ["Moratorium lahan sawit baru",{r:3,e:-3,d:3,k:-2},"moratorium_sawit","Hutan senang. Perusahaan pura-pura tidak mendengar."],
+ ["Biarkan pasar bekerja",{e:5,r:-6,k:5},"sawit_bebas","Harga naik, laba naik. Yang antre masih antre."]]),
+S(2,"men","Resesi global menghantam. Ekspor kita anjlok, rupiah… eh, mata uang kita goyah.",[
+ ["Stimulus besar-besaran lewat utang",{e:8,r:4,k:4},"utang_besar","Uang mengalir. Tagihan datang belakangan."],
+ ["Ikat pinggang, hemat anggaran",{e:2,r:-6,k:-2},"","Rapi di buku, perih di perut."],
+ ["Cari pasar ekspor baru",{e:5,d:4,r:-1},"","Kita jualan sampai ke negeri yang peta pun belum hafal."]]),
+S(2,"men","Subsidi pangan dinikmati banyak orang yang sebenarnya tidak butuh. Mobil mewah ikut antre beras murah.",[
+ ["Pertahankan subsidi merata",{r:6,e:-5},"","Populer, tapi bocor."],
+ ["Subsidi tepat sasaran berbasis data",{e:4,r:-2,k:-3},"data_subsidi","Data akhirnya berguna. Sebagian orang kaya marah di kolom komentar."]]),
+S(2,"men","Penerimaan negara seret. Kita butuh pajak baru. Pilih korban Anda.",[
+ ["Pajak orang super kaya",{r:5,e:-3,k:-1},"pajak_kaya","Rakyat bertepuk, konglomerat mendadak pindah negara… sebentar."],
+ ["Naikkan pajak konsumsi",{e:6,r:-7},"","Kas gemuk, keranjang belanja kurus."],
+ ["Amnesti pajak",{e:5,k:6},"amnesti","Uang parkir di luar negeri pulang. Sebagian dengan wajah baru."]]),
+S(2,"men","Investor asing ingin menggarap tambang nikel kita. Prospek bagus, risikonya juga.",[
+ ["Buka selebar-lebarnya",{e:8,d:3,r:-4,k:5},"tambang_asing","Investasi mengalir. Tanah kita pelan-pelan bukan milik kita."],
+ ["Wajibkan bangun pabrik di sini",{e:5,r:3,d:-3},"hilirisasi","Pabrik berdiri. Investor mengomel tapi tetap datang."],
+ ["Tolak, nasionalisasi",{r:5,e:-5,d:-5},"nasionalisasi","Pidato heroik. Neraca kurang heroik."]]),
+S(2,"men","Harga beras melonjak. Stok menipis, petani mengeluh harga gabah murah, pedagang memainkan stok.",[
+ ["Impor beras besar-besaran",{r:3,e:-2,k:4,d:2},"impor_beras","Gudang penuh. Petani lokal menatap truk impor dengan getir."],
+ ["Serap panen petani dengan harga layak",{r:5,e:-3,k:-2},"serap_petani","Petani tersenyum. Gudang Bulog akhirnya terisi, bukan cuma dicatat."],
+ ["Operasi pasar dan tangkap penimbun",{r:3,m:1,k:-1},"","Spanduk anti mafia beras terpasang. Harga turun sedikit."]]),
+S(2,"men","Startup unicorn kebanggaan bangsa memecat ribuan karyawan. Mereka minta pemerintah turun tangan.",[
+ ["Beri insentif pajak",{e:4,k:2,r:-2},"","Startup bernapas lega. Kantor mereka tetap pakai kursi gaming."],
+ ["Bailout dengan uang negara",{e:2,r:-5,k:4},"","Tabungan rakyat dipakai membayar valuasi yang sudah turun."],
+ ["Biarkan seleksi alam, fokus pelatihan kerja",{e:-1,r:3,k:-1},"","Pekerja dilatih ulang. Tidak semua suka kata ulang."]]),
+S(2,"aj","Pinjol ilegal dan judi online merajalela. Banyak keluarga terjerat, dan iklannya muncul di mana-mana.",[
+ ["Berantas keras, blokir dan tangkap",{r:5,e:-1,m:1,k:-2},"","Ribuan situs ditutup. Muncul seribu lagi dengan nama baru."],
+ ["Edukasi literasi keuangan nasional",{r:3,e:1,k:-1},"","Modul belajar dibagikan. Peserta paling rajin justru para penagih."],
+ ["Tutup mata, pajaki saja",{e:4,k:6,r:-4},"","Kas bertambah. Hati nurani bertanya soal bunganya."]]),
+S(2,"aj","Pak, temuan di Buku Hitam: sebagian utang negara dijaminkan dengan hak tambang, termasuk nikel yang baru kita bahas.",[
+ ["Telusuri semua perjanjian",{k:-3,e:-2,t:1},"hal2","Dokumen tebal. Satu tanda tangan terkenal ada di halaman paling bawah."],
+ ["Renegosiasi diam-diam",{e:3,d:-2,k:2},"hal2","Utang dinegosiasi ulang. Kopi diseduh banyak."],
+ ["Abaikan, bayar saja bunganya",{e:2,k:3,t:-1},"","Bunga jalan terus. Seperti biasa."]]),
+// --- BABAK 3 ---
+S(3,"aj","Tiga partai kecil datang bergantian. Tujuannya sama: kursi menteri demi “mengamankan suara di parlemen”.",[
+ ["Bagi kursi, koalisi gemuk",{m:2,r:-2,k:6,d:1},"koalisi_gemuk","Parlemen aman. Rapat kabinet kini butuh stadion."],
+ ["Tolak, koalisi ramping saja",{r:3,k:-3,m:-1},"koalisi_ramping","Tiga ketua partai pulang membawa dendam dan kue lapis."],
+ ["Tawarkan jabatan komisaris BUMN",{k:6,e:-2,r:-2},"komisaris_bumn","Mereka puas. Rakyat membaca laporan BUMN dengan hati-hati."]]),
+S(3,"rak","Mogok nasional! Pabrik, pelabuhan, hingga ojek ikut libur. Ini serius, Pak.",[
+ ["Dialog terbuka dengan serikat",{r:5,e:-3},"","Tiga hari kopi dan tawar-menawar. Semua pulang dengan sebagian menang."],
+ ["Ancam pecat dan tindak tegas",{m:3,r:-7,e:2},"","Pabrik jalan lagi. Dendam juga."],
+ ["Naikkan upah minimum",{r:6,e:-5,k:-1},"","Buruh bersorak. Pengusaha menghitung ulang lowongan."]]),
+S(3,"opo","Provinsi Lembayung merasa dianaktirikan. Ketua Oposisi: “Ini bom waktu, Pak Presiden, dan Anda duduk di atasnya.”",[
+ ["Beri otonomi khusus",{r:2,d:2,m:-3},"otsus","Lembayung tenang. Provinsi lain mulai menulis proposal serupa."],
+ ["Operasi militer",{m:6,r:-6,d:-5},"operasi_lembayung","Wilayah “aman”. Dunia mengerutkan dahi."],
+ ["Dialog dengan tokoh adat",{r:3,e:-2,d:2},"","Sirih dan teh diseduh. Tuntutan dicatat, tidak disapu."]]),
+S(3,"aj","Media memberitakan kritik tajam soal kebijakan Anda. Tiga redaksi sudah dapat bocoran dokumen rapat.",[
+ ["Jaga kebebasan pers",{r:4,d:3,k:-3},"pers_bebas","Berita pedas, publik makin pintar."],
+ ["Bredel dan sensor",{m:3,r:-6,k:4},"sensor","Berita jadi manis. Tak ada yang percaya."],
+ ["Kerahkan buzzer",{k:4,r:-1,e:1},"buzzer","Tagar “Presiden Terbaik” trending. Akunnya semua baru dibuat kemarin."]]),
+S(3,"opo","Lembayung mengumumkan referendum kemerdekaan. Sebulan lagi. Meja perundingan masih kosong.",[
+ ["Izinkan referendum",{d:3,r:2,m:-5},"referendum","Demokrasi dirayakan. Jenderal menggigit pensil sampai patah."],
+ ["Larang lewat jalur hukum",{m:2,d:-1,r:-1},"","Pengadilan memutuskan. Hati rakyat Lembayung tidak ikut sidang."],
+ ["Bangun Lembayung kilat",{e:-3,r:6,m:2},"bangun_lembayung","Jalan, sekolah, listrik. Referendum jadi sepi peminat."]]),
+S(3,"rak","Video pungli aparat di jalan raya viral. Ratusan orang menandai akun Anda dengan tagar yang tidak ramah.",[
+ ["Reformasi dan copot pimpinan setempat",{r:5,k:-4,m:-2},"","Pimpinan baru datang. Mereka berjanji lebih santun, dan lebih rapi mencatat."],
+ ["Bela korps, minta masyarakat tenang",{m:3,r:-5,k:3},"","Aparat berterima kasih. Tagarnya ganti judul."],
+ ["Pindahkan oknum ke pos terpencil",{r:1,m:-1,k:-1},"","Pungli pindah alamat. Pemandangan di sana lebih indah."]]),
+S(3,"rak","Banjir besar merendam Pulau Tengah. Bantuan lambat tiba, dan warganet sudah lebih cepat dari birokrasi.",[
+ ["Turun langsung ke lokasi",{r:6,e:-2,m:1,t:1},"","Sepatu bot Anda berlumpur. Foto Anda lebih jujur dari baliho."],
+ ["Kerahkan tentara dan logistik",{m:3,r:3,e:-3},"","Truk datang tertib. Warga mengangguk lega."],
+ ["Galang donasi publik",{r:2,e:1,k:3},"","Donasi mengalir. Sebagian mengalir ke arah yang tidak Anda duga."]]),
+S(3,"rak","Guru honorer demo di depan istana. Gajinya kalah dari tukang parkir, katanya sambil tersenyum pahit.",[
+ ["Angkat semua jadi pegawai tetap",{r:7,e:-6},"","Kementerian keuangan pingsan. Guru-guru menyanyi lagu perjuangan."],
+ ["Naikkan tunjangan bertahap",{r:3,e:-2},"","Janji bertahap, harapan juga bertahap."],
+ ["Seleksi ulang berbasis kinerja",{r:-3,e:1,k:-1},"","Sebagian lulus, sebagian pulang. Tak ada yang menyebut ini keadilan."]]),
+S(3,"aj","Tagar #BukuHitamHoax trending, padahal tak ada yang pernah menyebut buku itu. Pasukan buzzer bekerja lebih cepat dari staf Anda.",[
+ ["Bongkar jaringan buzzer",{r:4,k:-4,d:1,e:-1},"bongkar_buzzer","Server ditemukan di sebuah ruko. Isinya lebih banyak mi instan daripada komputer."],
+ ["Pakai buzzer sendiri",{k:5,r:-3},"pakai_buzzer","Perang tagar. Semua kalah, kecuali operator server."],
+ ["Diamkan, biar reda sendiri",{r:-1,t:-1},"","Tagar reda. Pertanyaannya tidak."]]),
+S(3,"rak","Pak Darmo, pedagang yang dulu ikut demo, membawa data pungli di pasar. “Saya tak minta apa-apa, Pak. Cuma didengar.”",[
+ ["Jadikan pengawas pungli",{k:-3,r:4,t:1},"darmo_menteri","Pak Darmo menangis, lalu langsung bekerja."],
+ ["Terima laporan, tindak lanjut biasa",{r:1},"darmo_tetap","Laporan masuk map. Map masuk lemari."],
+ ["Suruh aparat menertibkan",{m:2,r:-4},"darmo_buron","Pak Darmo menghilang dari pasar. Katanya “dicari”."]]),
+S(3,"opo","Malam-malam, Ketua Oposisi mengetuk pintu Anda sendirian. \u201cSaya ikut menulis Buku Hitam itu dulu. Saya ingin menebusnya.\u201d",[
+ ["Percaya dan ajak bekerja sama",{r:2,d:1,k:-2,t:1},"oposisi_sekutu","Dua musuh duduk satu meja. Ajudan menyiapkan teh dengan tangan agak gemetar."],
+ ["Curiga dan rekam diam-diam",{k:-1,t:-1},"oposisi_curiga","Rekaman bagus. Suasana jadi dingin."],
+ ["Usir halus, jangan terlibat",{r:-1},"","Pintu tertutup. Dilema tetap tinggal di dalam."]]),
+S(3,"opo","Saya punya salinan Buku Hitam, Pak. Halaman nama. Nama Anda ada juga di sana, sebagai saksi penandatangan.",[
+ ["Tantang, buka bersama ke publik",{r:3,d:-2,k:-2},"hal3","Ruangan hening. Kamera bergerak pelan, lalu semua menyala."],
+ ["Tawarkan jabatan agar diam",{k:6,r:-2},"hal3","Ketua Oposisi tersenyum. Bukan senyum bahagia."],
+ ["Ancam balik dengan data sendiri",{m:2,k:3,t:-1},"","Permainan jadi dua arah, dan makin berbahaya."]]),
+// --- BABAK 4 ---
+S(4,"jen","KTT regional. Valdoria menawarkan aliansi pertahanan. Apa jawaban Anda, Pak?",[
+ ["Terima aliansi penuh",{d:7,m:3},"aliansi_valdoria","Dunia menyaksikan jabat tangan. Rakyat bertanya siapa yang bayar."],
+ ["Netral aktif",{d:3,r:2,m:2},"netral","Kita berteman dengan semua, bersahabat erat dengan tak seorang pun."]],
+ ["pakta_valdoria","Berkat pakta dagang dulu, Valdoria kini menawarkan aliansi pertahanan. Mereka ingin balas budi, kata mereka. Pak?"]),
+S(4,"jen","Kapal patroli kita ditembaki di perbatasan laut. Satu prajurit terluka. Rakyat murka.",[
+ ["Balas tembak",{m:6,d:-6,r:3},"balas_tembak","Satu peluru dibalas dua. Dunia mulai menghitung."],
+ ["Bawa ke PBB",{d:6,m:-3,r:-1},"diplomasi_pbb","Sidang, nota protes, kopi dingin. Tapi tak ada perang."],
+ ["Siagakan pasukan, perkuat patroli",{m:6,d:-1,e:-3},"siaga","Gertakan yang mahal tapi berhasil."]]),
+S(4,"jen","Peralatan tempur kita sudah tua. Panglima menunjuk tank yang kini lebih mirip monumen.",[
+ ["Beli jet tempur Valdoria (utang)",{m:8,d:3,e:-5,k:4},"beli_valdoria","Gagah di udara. Cicilannya juga panjang."],
+ ["Bangun industri pertahanan sendiri",{m:8,e:3,k:-1},"industri_hankam","Lambat, tapi suatu hari tanki kita buatan sini."],
+ ["Potong anggaran militer",{m:-6,e:4,r:2},"","Barak kecil, dana sekolah besar. Jenderal tidak mengirim kartu ucapan."]]),
+S(4,"aj","Valdoria meminta dukungan resolusi PBB yang kontroversial. Isinya diplomatis, dampaknya licin.",[
+ ["Dukung penuh",{d:6,r:-3},"dukung_resolusi","Valdoria berutang budi. Rakyat bingung kenapa."],
+ ["Abstain",{d:1},"","Posisi paling aman: tidak ada yang senang, tidak ada yang marah."],
+ ["Tolak terang-terangan",{d:-4,r:4,m:1},"tolak_resolusi","Pidato Anda viral. Diplomat Valdoria lebih viral ekspresinya."]]),
+S(4,"aj","KTT Iklim: dunia menuntut Nusantara Raya menurunkan emisi, sementara hutan dan tambang kita sedang laris.",[
+ ["Target ambisius, tantang dunia ikut",{d:5,e:-4,r:2},"","Pidato Anda ditepuki. Perusahaan batu bara menyalin catatan."],
+ ["Target realistis bertahap",{d:2,e:1},"","Tak ada yang bersorak, tak ada yang marah."],
+ ["Tuntut dana dari negara maju dulu",{d:-2,e:3,r:2},"","Dunia berkata kami pikirkan. Anda menafsirkan sebagai bisa."]]),
+S(4,"jen","Gelombang pengungsi dari negara tetangga tiba di pantai kita. Jumlahnya ribuan, kapalnya rapuh.",[
+ ["Terima dan beri perlindungan",{d:5,r:-2,e:-3},"","Dunia memuji. Sebagian warga memandang curiga."],
+ ["Tolak di perbatasan",{m:3,d:-6,r:1},"","Garis pantai aman. Hati agak tidak."],
+ ["Kamp sementara bersama PBB",{d:3,e:-2,r:1,m:1},"","Solusi paling rumit, tapi paling manusiawi."]]),
+S(4,"jen","Mata-mata Valdoria tertangkap di pangkalan kita. Ia menyamar sebagai turis yang suka memotret radar.",[
+ ["Deportasi diam-diam",{d:1,m:-1},"","Diplomat Valdoria berterima kasih tanpa suara."],
+ ["Adili terbuka",{m:3,r:3,d:-4},"","Sidang ramai. Valdoria mengirim nota keberatan di kertas mahal."],
+ ["Tukar dengan keuntungan dagang",{e:4,d:2,k:2},"","Transaksi tuntas. Si turis pulang membawa oleh-oleh kontrak."]]),
+S(4,"aj","Duta Valdoria datang dengan senyum tipis: “Kami hanya menagih janji lama: pangkalan militer dan suara tetap di PBB.” Janji itu tertulis di Buku Hitam.",[
+ ["Patuhi janji lama",{d:5,m:-4,r:-3,k:3},"hal4","Valdoria puas. Peta kita sedikit berubah warna."],
+ ["Tolak dan lawan di forum",{d:-3,m:3,r:4},"hal4","Anda menolak dengan tenang. Duta Valdoria menolak tersenyum."],
+ ["Bocorkan perjanjian ke publik",{d:-5,r:6,k:-4},"hal4","Dunia gempar, dan Anda tidur dengan satu mata terbuka."]]),
+// --- BABAK 5 ---
+S(5,"aj","Pak, skandal besar. Seorang menteri tertangkap tangan menggelapkan dana proyek.",[
+ ["Copot dan serahkan ke penegak hukum",{k:-8,r:5},"bersih","Anda dipuji. Menteri tadi sudah menyiapkan buku memoar."],
+ ["Tutupi demi stabilitas",{k:8,r:-8},"tutupi","Tertutup rapi, selama tak ada yang membuka lemari."],
+ ["Salahkan bawahan",{k:3,r:-3},"kambing_hitam","Staf rendahan jadi kambing hitam. Kambingnya menangis di media."]],
+ ["kabinet_koalisi","Pak, skandal besar. Menteri dari jatah koalisi tertangkap tangan. Dananya mengalir ke Yayasan Garuda Sejahtera, yayasan milik sang Menteri sendiri."]),
+S(5,"men","Pak Presiden, saya membawa data soal Yayasan Garuda Sejahtera. Siapa pun di baliknya, bukti ini bisa menjatuhkan mereka.",[
+ ["Gunakan bukti, tindak tegas",{k:-6,r:5,e:-1},"","Penegak hukum bergerak. Beberapa orang mendadak sakit di luar negeri."],
+ ["Simpan sebagai pegangan politik",{k:5,m:1,r:-2},"","Bukti disimpan. Anda mulai terdengar seperti presiden lama."],
+ ["Umumkan lewat siaran pers",{r:5,k:-4,d:-1},"","Siaran pers ditonton setengah negeri. Setengahnya menunggu cuplikannya."]],
+ ["kabinet_teknokrat","Pak Presiden, Menteri Ekonomi menemui Anda. Sejak awal ia melacak Yayasan Garuda Sejahtera diam-diam, dan kini membawa bukti lengkap."]),
+S(5,"opo","Partai pendukung mengusulkan amandemen: masa jabatan presiden diperpanjang dua tahun. “Demi stabilitas,” katanya.",[
+ ["Terima usulan",{m:3,k:8,r:-4},"perpanjang","Konstitusi bergeser sedikit. Cuma sedikit."],
+ ["Tolak tegas",{r:5,k:-4,d:2},"tolak_perpanjang","Anda dipuji sebagai negarawan. Pendukung partai menggerutu."]]),
+S(5,"aj","Halaman terakhir Buku Hitam kosong, seolah menunggu Anda. Nasib buku ini ada di tangan Anda, Pak.",[
+ ["Bakar buku itu",{k:-2,r:-2,d:2},"bakar_buku","Asap tipis naik. Masa lalu hilang, kebenarannya juga."],
+ ["Buka ke publik",{r:7,k:-7,d:-3,m:-2},"hal5","Konferensi pers sampai tengah malam. Nusantara Raya akhirnya membaca halamannya sendiri."],
+ ["Serahkan ke penegak hukum",{k:-8,r:3,e:-2},"hal5","Proses panjang dimulai. Ada yang takut, ada yang lega."],
+ ["Pakai untuk memeras balik",{k:10,m:3,d:3,r:-5},"peras","Kekuasaan Anda makin kokoh, dan makin gelap."]],
+ ["aj_setia","Halaman terakhir kosong. Ajudan menaruh buku di meja: “Saya selalu di pihak Bapak, apa pun pilihannya.” Nasib buku ada di tangan Anda."]),
+S(5,"aj","Waktunya meninggalkan warisan. Apa proyek penutup Anda?",[
+ ["Sekolah dan puskesmas desa",{r:6,e:3},"","Tak ada gunting pita raksasa. Anak-anak pulang sambil belajar."],
+ ["Monumen megah bernama Anda",{r:-2,k:6,e:-4},"monumen","Tinggi, berkilau, dan sedikit memalukan."],
+ ["Birokrasi digital, anti-pungli",{e:5,k:-6,r:2,d:2,m:2},"digital","Antrean hilang. Calo kehilangan pekerjaan."]]),
+S(5,"aj","Musim kampanye tiba. Tim sukses menyodorkan tiga strategi, masing-masing lengkap dengan anggaran.",[
+ ["Kampanye bersih dan terbuka",{r:3,k:-3,e:-1},"","Baliho sedikit, diskusi banyak. Tim sukses pusing."],
+ ["Politik uang dan serangan fajar",{r:-4,k:8},"","Amplop beredar. Tak ada yang mengaku menerima, semua yang kenyang tahu rasanya."],
+ ["Blusukan ke pasar dan desa",{r:5,e:-1,m:-1},"","Sepatu Anda aus, foto Anda bagus."]]),
+S(5,"aj","Pidato kenegaraan terakhir. Ruang sidang penuh, kamera menyala, dan teks pidato sudah dicetak dua versi.",[
+ ["Pidato jujur apa adanya",{r:4,d:2,k:-2,t:1},"","Ada yang menangis, ada yang berhitung ulang. Itu tandanya jujur."],
+ ["Pidato manis penuh janji",{r:2,k:2},"","Tepuk tangan panjang. Janji jauh lebih panjang."],
+ ["Serang oposisi habis-habisan",{r:-2,m:2,d:-2},"","Pendukung bersorak. Panggung jadi arena."]]),
+S(5,"aj","Masa jabatan hampir usai. Pemilu menanti. Apa langkah terakhir Anda, Pak Presiden?",[
+ ["Maju lagi di pemilu",{},"","Spanduk dicetak ulang. Foto Anda lebih muda dari aslinya."],
+ ["Umumkan pemilu jujur dan serahkan hasilnya",{r:3,d:3},"","Anda berjanji menerima hasil, apa pun itu."],
+ ["Pensiun dini, serahkan ke penerus",{},"pensiun","Anda mengemasi barang pada hari Selasa."]],
+ ["audit_total","Masa jabatan hampir usai. Audit total yang Anda mulai dulu membuat musuh di mana-mana, tapi juga banyak teman. Langkah terakhir?"])
+];
+
+let STORY=BASE;
+// ===== KABAR HARI INI: 25 peristiwa acak x 4 pendekatan = 100 pilihan; 12 dipilih acak tiap permainan =====
+// format: stat|pembicara|teks|objek (stat utama: e,r,m,d,k)
+const EV=['e|men|Harga cabai melambung, emak-emak menuduh Presiden pelakunya.|harga cabai','e|men|Nilai tukar bergejolak, trader panik, grup WhatsApp keluarga lebih panik lagi.|nilai tukar','r|rak|Ojek online mogok minta tarif naik. Jalanan penuh klakson protes.|tarif ojek online','k|aj|Seorang pejabat pamer jam tangan seharga rumah di media sosial.|gaya hidup pejabat','m|jen|Latihan tembak militer mengenai kebun warga. Untung hanya kebun pisang.|insiden latihan','d|aj|Presiden Valdoria salah menyebut nama negara kita di pidato resmi.|insiden diplomatik','r|rak|Mahasiswa viral membongkar skripsi pejabat yang ternyata jiplakan.|skandal gelar','e|men|Nelayan menolak larangan jaring trawl, sementara ikan makin sedikit.|nasib nelayan','k|aj|Proyek jembatan ambruk sebelum diresmikan. Gunting pitanya sudah dibeli.|proyek jembatan','r|rak|Konser artis ibu kota memacetkan kota dan menutup akses rumah sakit.|konser dan kemacetan','e|men|Pabrik tekstil tutup karena banjir impor baju murah.|industri tekstil','m|jen|Pasukan elite menolak pensiun dan membuka bengkel motor di dalam barak.|pasukan elite','d|aj|Turis asing viral karena memanjat pohon keramat. Citra pariwisata dipertaruhkan.|turis nakal','k|aj|Rekening gendut seorang kepala dinas ditemukan tersimpan di dalam kulkas.|rekening kepala dinas','r|rak|Warga menolak pembangunan bandara baru di tanah leluhur mereka.|bandara baru','e|men|Koperasi desa digital gagal total. Aplikasinya error setiap hari Jumat.|koperasi digital','m|jen|Drone asing melayang di atas istana, kameranya mengarah ke dapur.|drone asing','d|aj|Negara tetangga mengklaim kita meniru rendang mereka.|sengketa rendang','r|rak|Wabah flu aneh menyebar. Apotek kehabisan stok, dukun TikTok kebanjiran klien.|wabah flu','e|men|Harga minyak dunia anjlok, tapi harga eceran tidak ikut turun.|harga BBM','k|aj|Staf khusus Anda punya tiga jabatan sekaligus, plus satu jabatan imajiner.|stafsus rangkap','m|jen|Prajurit viral menari K-pop di barak. Komandan bingung harus bangga atau marah.|prajurit viral','d|aj|Di KTT Valdoria, kursi Anda diletakkan dekat toilet. Disengaja atau tidak?|protokol KTT','r|rak|Petani garam protes: garam impor lebih murah dari garam lokal.|petani garam','e|men|Mal raksasa dibangun di atas sawah produktif. Peresmiannya dihadiri artis.|mal raksasa'];
+const AP=[['Langkah tegas soal ',{a:5,r:-3},'Aparat bergerak cepat. Tidak semua senang dengan kecepatannya.'],['Ajak semua pihak berdialog soal ',{a:2,r:3,e:-1},'Rapat panjang, kopi banyak, hasilnya lumayan.'],['Danai proyek besar untuk ',{a:5,e:-2,k:3},'Proyek dimulai. Anggarannya ikut membengkak.'],['Tunda dulu, bahas minggu depan',{a:-3,k:-1},'Minggu depan, seperti biasa, datang terlambat.']];
+// mk: ganti kunci a dengan stat utama peristiwa (korupsi dibalik tandanya)
+const mk=(a,o)=>{const x={};for(const k in o){const key=k=='a'?a:k;x[key]=(x[key]||0)+o[k]*(k=='a'&&a=='k'?-1:1);}return x;};
+function mkEvent(s,b){const[a,sp,t,o]=s.split('|');return S(b,sp,t,AP.map(([p,fx,rp],i)=>[i<3?p+o:p,mk(a,fx),'',rp]));}
+// buildPlay: sisipkan 12 peristiwa acak ke dalam alur utama di awal tiap permainan
+function buildPlay(){const ev=[...EV].sort(()=>Math.random()-.5).slice(0,12),pl=BASE.map(x=>[x]);ev.forEach(s=>{const i=1+Math.floor(Math.random()*(BASE.length-2));pl[i].push(mkEvent(s,BASE[i].babak));});STORY=pl.flat();}
+// ===== ENDING =====
+// determineEnding: cek berurutan dari prioritas atas ke bawah
+function determineEnding(s){
+ const {eko:e,rak:r,mil:m,dip:d,kor:k,flags:f}=s;
+ const E=(title,desc,color)=>({title,desc,color});
+ if(k>=80&&r<=30)return E("IMPEACHMENT","Parlemen sepakat: Anda dimakzulkan. Korupsi di lingkaran istana terbongkar, sementara rakyat sudah lama berhenti percaya. Anda keluar lewat pintu belakang, dikawal wartawan dan meme.","#c8393a");
+ if(e<=20&&r<=25)return E("KRISIS TOTAL","Harga melambung, kas kosong, kepercayaan menguap. Nusantara Raya masuk status darurat. Nama Anda tercatat di bab “Pelajaran yang Mahal”.","#c8393a");
+ if(k>=60&&m>=60&&r>=50)return E("PRESIDEN ABADI","Semua stabil, tertib, dan tak ada yang berani bertanya kapan Anda turun. Pemilu tetap digelar, hasilnya selalu sama. Ini disebut “kesinambungan”.","#8a6cc8");
+ if(m>=80&&d<=40)return E("JENDERAL DI KURSI PRESIDEN","Seragam menggantikan jas. Barak jadi pusat kebijakan, parade makin megah, undangan makan malam diplomatik makin jarang.","#7a8a8a");
+ if(d>=80&&m<=30)return E("PRESIDEN BONEKA","Valdoria menelepon, Anda menjawab “siap”. Perjanjian ditandatangani lebih cepat dari dibaca, dan militer tak lagi punya taring untuk menolak.","#8aa8d8");
+ if(r>=70&&k>=70)return E("DIKTATOR RAKYAT","Rakyat memuja Anda, dan Anda memanfaatkannya. Panggung penuh tepuk tangan, kroni makan paling dulu. Populis sejati.","#c8793a");
+ if(f.has("pensiun"))return E("PENSIUN DINI","Anda menyerahkan tongkat estafet dan pulang kampung memelihara ayam. Ada yang bilang pengecut, ada yang bilang bijak. Ayam-ayam tak berkomentar.","#3a9c4e");
+ if(e>=65&&r>=65&&m>=65&&d>=65&&k<=25)return E("LEGENDA NUSANTARA","Ekonomi tumbuh, rakyat sejahtera, tentara disegani, diplomat dihormati, dan kas negara bersih. Buku sejarah menulis bab baru dengan tinta emas. Anda tidak sempurna, tapi hampir.","#e8b33a");
+ if(f.has('buzzer')&&f.has('pakai_buzzer'))return E('RAJA BUZZER','Anda menang telak di media sosial: 400 juta pengikut, 399 juta di antaranya bot. Rakyat sungguhan baru sadar saat tagar Presiden Terbaik ikut trending di desa yang belum kebagian sinyal.','#ff6ad5');
+ if(f.has('renovasi')&&f.has('monumen'))return E('KERAN EMAS','Sejarah mengenang Anda lewat dua hal: kamar mandi berkeran emas dan patung setinggi 40 meter. Turis berdatangan, berswafoto di toilet, lalu memberi ulasan bintang lima.','#e8b33a');
+ if(f.has('darmo_menteri')&&f.has('makan_umkm'))return E('PRESIDEN WARTEG','Setelah turun takhta, Anda membuka warteg bersama Pak Darmo. Menu andalannya Nasi Presiden. Antreannya lebih panjang dari antrean pelantikan.','#3a9c4e');
+ if(f.has('aj_khianat')&&m>=70)return E('KUDETA SENYAP','Pukul 03.00, Ajudan membuka pintu istana dari dalam. Tak ada tembakan, hanya langkah sepatu bot dan kopi yang disajikan terlalu cepat. Anda membaca berita pencopotan Anda dari ponsel yang bukan milik Anda.','#7a8a8a');
+ if(f.has('peras')&&r<=45)return E('BUKU HITAM BALIK MENYERANG','Orang yang Anda peras ternyata menyimpan salinan lain yang lebih lengkap. Dalam semalam daftar nama itu berbalik menunjuk Anda. Kini Anda mencari kamar sewa yang tak punya sinyal.','#c8393a');
+ if([1,2,3,4,5].every(i=>f.has('hal'+i)))return E('SAKSI KUNCI','Semua halaman Buku Hitam terbuka dan seluruh negeri tahu. Anda dipuji sekaligus diincar. Sejak itu setiap pintu dikunci dua kali dan setiap nasi bungkus diperiksa dulu.','#8aa8d8');
+ if(f.has("bakar_buku"))return E("PEMBAKAR BUKU","Buku Hitam jadi abu, dan dengan itu rahasia negara. Nusantara Raya bersih dari dokumen lama, tapi tak seorang pun diadili. Sejarah mencatat Anda sebagai presiden yang menyalakan korek di saat yang tepat, atau yang paling tidak tepat.","#c8793a");
+ if(r>=80&&d<=50)return E("SUARA RAKYAT","Anda lemah di meja diplomasi, tapi kuat di jalanan. Rakyat bersama Anda dan dunia luar sulit mengerti kenapa begitu.","#3a9c4e");
+ if(e>=75&&k<=30)return E("BAPAK PEMBANGUNAN","Jalan tol, pabrik, pelabuhan. Ekonomi melaju dan tangan Anda relatif bersih. Patung Anda berdiri, dibangun dengan anggaran yang diaudit.","#e8b33a");
+ return E("PRESIDEN BIASA","Tidak ada yang menangis saat Anda turun, tidak ada pula yang berpesta. Buku sejarah menyebut Anda dalam satu paragraf. Paragrafnya ramah.","#f3e9c8");
+}
+
+// ===== MUSIK: sintesis WebAudio, tanpa file; mood mengikuti stat =====
+let AC=null,mute=false,musicT=null,step=0,mood="";
+const SC={calm:{n:[0,2,4,7,9,7,4,2],t:380,w:"triangle",r:196},tense:{n:[0,1,3,0,1,3,6,5],t:230,w:"sawtooth",r:130},sad:{n:[0,3,7,3,0,-2,0,3],t:560,w:"sine",r:164},win:{n:[0,4,7,12,7,4,7,9],t:260,w:"square",r:220}};
+function tone(f,d,w,v){const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime;o.type=w;o.frequency.value=f;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(AC.destination);o.start();o.stop(t+d);}
+function moodNow(){const{eko:e,rak:r,kor:k}=state;if(k>=60||r<=30||e<=25)return"tense";if(r<=45||e<=40)return"sad";if(e>=62&&r>=62&&k<=30)return"win";return"calm";}
+function musicTick(){if(mute||!AC)return;const s=SC[mood];tone(s.r*Math.pow(2,s.n[step%8]/12),s.t/1000*1.6,s.w,.04);if(step%4==0)tone(s.r/2,s.t/1000*3,"triangle",.06);step++;}
+function setMood(){const m=moodNow();if(m===mood&&musicT)return;mood=m;clearInterval(musicT);musicT=setInterval(musicTick,SC[m].t);}
+function startMusic(){AC=AC||new(window.AudioContext||window.webkitAudioContext)();AC.resume();setMood();}
+function toggleMute(){mute=!mute;$("#mu").textContent=mute?"MUSIK: OFF":"MUSIK: ON";}
+// ===== EKSPRESI: wajah sprite berubah menurut pembicara dan hasil pilihan =====
+const FACE={opo:"angry",rak:"shock"};
+function setFace(f){$("#sp").className=f||"";}
+// ===== UI =====
+const $=q=>document.querySelector(q);
+let timer=null,shownBabak=0,typing=false,fullText="",doneCb=null;
+const clamp=v=>Math.max(0,Math.min(100,v));
+
+function buildHUD(){
+ $("#hud").innerHTML=Object.keys(NM).map(k=>`<div class="s"><div class="t"><span>${NM[k]}</span><span id="v-${k}"></span></div><div class="bar"><i id="b-${k}" class="${k=="kor"?"bad":""}"></i></div></div>`).join("");
+}
+// updateHUD: sinkronkan bar dan angka dengan state
+function updateHUD(){
+ for(const k in NM){$("#b-"+k).style.width=state[k]+"%";$("#v-"+k).textContent=state[k];}
+ $("#bb").textContent="BABAK "+state.babak+"/5: "+BT[state.babak-1]+" ("+(state.sceneIndex+1)+"/"+STORY.length+")";setMood();
+}
+// showStatPopup: angka perubahan melayang
+function showStatPopup(fx){
+ const p=$("#pop");p.innerHTML="";
+ for(const k in fx){if(!fx[k]||k=="t")continue;const good=(k=="k")?fx[k]<0:fx[k]>0;
+  const s=document.createElement("span");s.textContent=NM[K[k]]+" "+(fx[k]>0?"+":"")+fx[k];
+  s.style.color=good?"#7fe08f":"#ff7a7a";p.appendChild(s);}
+ setTimeout(()=>p.innerHTML="",1500);
+}
+// setSprite: ganti warna jas + name tag
+function setSprite(key){const c=CH[key];$("#sp").style.setProperty("--c",c.c);$(".bd").style.setProperty("--c",c.c);$("#nm").textContent=c.n;}
+// typewriter: tampilkan teks per huruf; klik kotak = lewati
+function typewriter(text,cb){
+ clearInterval(timer);fullText=text;doneCb=cb;typing=true;let i=0;const el=$("#tx");el.textContent="";
+ timer=setInterval(()=>{el.textContent=text.slice(0,++i);if(i>=text.length)finishType();},18);
+}
+function finishType(){
+ if(!typing)return;typing=false;clearInterval(timer);$("#tx").textContent=fullText;doneCb&&doneCb();
+}
+$("#tx").addEventListener("click",finishType);
+
+function fadeTo(html,cb){
+ const f=$("#fd");f.innerHTML=html;f.classList.add("on");
+ setTimeout(()=>{f.classList.remove("on");cb();},1700);
+}
+function show(id){document.querySelectorAll(".scr").forEach(s=>s.classList.remove("on"));$(id).classList.add("on");}
+
+// renderScene: tampilkan scene aktif (dengan transisi antar babak)
+function renderScene(){
+ const sc=STORY[state.sceneIndex];
+ if(!sc)return showEndScreen();
+ if(sc.babak!==shownBabak){
+  shownBabak=sc.babak;state.babak=sc.babak;updateHUD();
+  return fadeTo(`BABAK ${sc.babak}<br>${BT[sc.babak-1]}`,renderScene);
+ }
+ setSprite(sc.speaker);setFace(FACE[sc.speaker]||"");window.scrollTo(0,0);updateHUD();$("#ch").innerHTML="";
+ const t=(sc.alt&&state.flags.has(sc.alt[0]))?sc.alt[1]:sc.text;
+ typewriter(t,()=>showChoices(sc));
+}
+function showChoices(sc){
+ const box=$("#ch");box.innerHTML="";
+ sc.choices.forEach(c=>{const b=document.createElement("button");b.className="btn";b.textContent=c.text;b.onclick=()=>chooseOption(c);box.appendChild(b);});
+ box.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+// chooseOption: terapkan efek + flag, tampilkan balasan, lanjut
+function chooseOption(c){
+ $("#ch").innerHTML="";
+ for(const k in c.effects)state[K[k]]=clamp(state[K[k]]+c.effects[k]);
+ if(c.flag)state.flags.add(c.flag);
+ state.flags[state.trust>=8?"add":"delete"]("aj_setia");state.flags[state.trust<=2?"add":"delete"]("aj_khianat");
+ let net=0;for(const k in c.effects)if(k!="t")net+=k=="k"?-c.effects[k]:c.effects[k];
+ setFace(net>=4?"happy":net<=-6?"shock":net<=-2?"sad":"");
+ updateHUD();showStatPopup(c.effects);
+ const next=()=>{state.sceneIndex++;renderScene();};
+ if(c.reply){
+  typewriter(c.reply,()=>{const b=document.createElement("button");b.className="btn";b.textContent="LANJUT ▶";b.onclick=next;$("#ch").appendChild(b);});
+ }else next();
+}
+// showEndScreen: panggil determineEnding dan tampilkan ringkasan
+function showEndScreen(){
+ const en=determineEnding(state);
+ document.documentElement.style.setProperty("--acc",en.color);
+ const f=state.flags,pg=[1,2,3,4,5].filter(i=>f.has("hal"+i)).length;
+ $("#ex").innerHTML=[`HALAMAN BUKU HITAM: ${pg}/5`,f.has("darmo_menteri")?"Pak Darmo kini pengawas pungli dan sering dimarahi calo.":f.has("darmo_buron")?"Pak Darmo masih dicari dan sudah berjualan di pasar lain.":f.has("darmo_tetap")?"Pak Darmo tetap berjualan, menunggu laporannya dibaca.":"",f.has("aj_khianat")?"Ajudan diam-diam menjual salinan Buku Hitam ke penerbit.":f.has("aj_setia")?"Ajudan setia mendampingi sampai hari terakhir.":""].filter(Boolean).join("<br>");
+ $("#et").textContent=en.title;$("#ed").textContent=en.desc;setMood();
+ $("#sum").innerHTML=Object.keys(NM).map(k=>`<div>${NM[k]}<br><span style="color:${k=="kor"?"#ff7a7a":"#7fe08f"}">${state[k]}</span></div>`).join("");
+ show("#en");
+}
+function startGame(){
+ Object.assign(state,START,{flags:new Set(),sceneIndex:0,babak:1});
+ buildPlay();shownBabak=0;buildHUD();updateHUD();show("#gm");try{startMusic()}catch(e){}renderScene();
+}
+// ===== HALAMAN DEPAN: pixel art istana terbakar + Presiden (canvas 200x120, digambar per piksel) =====
+(function(){
+const cv=$('#pc'),g=cv.getContext('2d');let T=0;
+const R=(x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));};
+const SKY=['#070f26','#0b1a3a','#14204a','#2a1a45','#4a1a3a','#6a2030','#8a2a2a'];
+const PC={k:'#0a0a12',s:'#e0a878',S:'#b8805a',w:'#fff6dc',m:'#600a0a'};
+const HEAD=['..kkkkkkkk..','.kkkkkkkkkk.','.kkkkkkkkkk.','.ssssssssss.','.ssssssssss.','.sswsssswss.','.ssksssskss.','.ssssssssss.','.sssmmmmsss.','..SssssssS..','...ssssss...'];
+const SP=Array.from({length:28},()=>({x:40+Math.random()*120,y:30+Math.random()*60,v:.6+Math.random()*1.4,d:Math.random()-.5}));
+// F: satu api tiga lapis (merah, oranye, kuning) yang meliuk
+const F=(x,y,w,h,p)=>{const hh=h*(1+.2*Math.sin(T/90+p));for(let i=0;i<hh;i+=2){const f=i/hh,ww=Math.max(2,Math.round(w*(1-f*.8)+Math.sin(T/60+i+p)*1.5)),cx=x+w/2+Math.sin(T/130+i*.4+p)*3*f,yy=y+h-i;R(cx-ww/2-2,yy,ww+4,2,'#c8391a');R(cx-ww/2,yy,ww,2,f>.7?'#ff7a1a':'#ff9a2a');if(f<.6)R(cx-ww/4,yy,ww/2,2,'#ffe27a');}};
+// P: sprite Presiden (peci, jas navy, dasi merah); f=0 tangan di kepala, f=1 menunjuk istana
+const P=(ox,oy,f)=>{const rows=HEAD.slice();rows[8]=f?'.sssssmmsss.':'.sssmmmmsss.';rows.forEach((row,y)=>[...row].forEach((c,x)=>{if(c!='.')R(ox+x,oy+y,1,1,PC[c]);}));
+R(ox-1,oy+11,14,10,'#1d3b7a');R(ox-1,oy+11,2,10,'#12285a');R(ox+4,oy+11,4,4,'#fff6dc');R(ox+5,oy+12,2,8,'#c8393a');R(ox+8,oy+15,2,2,'#e8b33a');
+R(ox+1,oy+21,4,6,'#0f2150');R(ox+7,oy+21,4,6,'#0f2150');R(ox,oy+27,5,2,'#2a1a10');R(ox+7,oy+27,5,2,'#2a1a10');
+if(!f){R(ox-3,oy+8,3,7,'#1d3b7a');R(ox-3,oy+5,3,3,'#e0a878');R(ox+12,oy+8,3,7,'#1d3b7a');R(ox+12,oy+5,3,3,'#e0a878');}else{R(ox-3,oy+12,3,8,'#1d3b7a');R(ox-3,oy+20,3,3,'#e0a878');R(ox+13,oy+12,8,3,'#1d3b7a');R(ox+21,oy+12,3,3,'#e0a878');}};
+let KK='';
+// draw: ukuran kanvas dipilih kelipatan bulat dari 200x120 (per DPR) agar piksel mata/mulut tajam dan sama di semua perangkat
+function draw(){
+const dpr=window.devicePixelRatio||1,av=Math.min(innerWidth-40,600,innerHeight*.55*1.667)-8,k=Math.max(1,Math.floor(av*dpr/200));
+if(KK!==k+'_'+dpr){KK=k+'_'+dpr;cv.width=200*k;cv.height=120*k;cv.style.width=(200*k/dpr)+'px';cv.style.height=(120*k/dpr)+'px';}
+g.setTransform(k,0,0,k,0,0);g.imageSmoothingEnabled=false;
+SKY.forEach((c,i)=>R(0,i*14,200,14,c));
+for(let i=0;i<30;i++)if((i+Math.floor(T/400))%5)R((i*47)%200,(i*29)%46,1,1,'#f3e9c8');
+R(168,10,6,2,'#f3e9c8');R(166,12,10,8,'#f3e9c8');R(168,20,6,2,'#f3e9c8');R(170,14,3,3,'#d8c898');
+R(0,88,200,12,'#0a1a14');for(let x=0;x<200;x+=10)R(x,83+(x*7)%6,10,6,'#0a1a14');
+R(0,100,200,20,'#12331c');R(86,100,28,6,'#8a7a5a');R(80,106,40,6,'#8a7a5a');R(72,112,56,8,'#8a7a5a');
+[28,126].forEach((x,k)=>{R(x,72,46,28,'#e8dcb8');R(x,96,46,4,'#b8a878');R(x-2,68,50,5,'#8a3a2a');for(let i=0;i<4;i++){const lit=(i+k+Math.floor(T/220))%3==0;R(x+6+i*10,78,6,10,lit?'#ffb030':'#2a1008');}});
+R(70,56,60,44,'#f3e9c8');
+for(let r=0;r<14;r++){const w=72*(r+1)/14;R(100-w/2,44+r,w,1,'#e8dcb8');}
+R(64,57,72,2,'#e8b33a');
+for(let i=0;i<6;i++){R(74+i*10,59,5,41,'#fff6dc');R(77+i*10,59,2,41,'#c8b888');}
+R(94,80,12,20,'#4a2410');R(64,98,72,2,'#d8c898');
+for(let r=0;r<14;r++){const w=2*Math.round(Math.sqrt(196-(13-r)*(13-r)));R(100-w/2,30+r,w,1,'#e8b33a');}
+R(100,18,1,12,'#cccccc');R(101,18,7,2,'#c8393a');R(101,20,7,2,'#ffffff');
+R(70,56,14,8,'#3a2a22');R(118,60,12,10,'#3a2a22');R(34,72,18,8,'#4a3428');R(84,46,20,8,'#3a2a22');R(146,72,16,8,'#4a3428');
+[[44,64,14,26,0],[60,66,10,20,2],[84,40,16,28,4],[78,50,10,20,1],[112,46,12,22,3],[138,62,14,28,5],[156,66,12,20,6],[16,92,10,12,7],[172,92,10,12,8],[98,74,10,14,9]].forEach(a=>F(...a));
+for(let i=0;i<6;i++){const s=((T/45+i*34)%200)/200;g.globalAlpha=.55*(1-s);R(60+i*16+Math.sin(T/700+i)*6,58-s*60,4+s*14,4+s*14,'#3a3a44');}
+g.globalAlpha=.1+.05*Math.sin(T/90);R(0,0,200,120,'#ff7a1a');g.globalAlpha=1;
+SP.forEach(s=>{s.y-=s.v;s.x+=s.d;if(s.y<0){s.x=40+Math.random()*120;s.y=70;}R(s.x,s.y,s.v>1.2?2:1,s.v>1.2?2:1,s.v>1.4?'#ffe27a':'#ff8a1f');});
+const f=Math.floor(T/600)%2;P(24,82,f);
+R(40,74,50,13,'#fff6dc');R(44,87,3,3,'#fff6dc');g.fillStyle='#c8393a';g.font='6px "Press Start 2P",monospace';g.fillText(f?'TIDAK!':'ASTAGA!',44,83);
+}
+const loop=t=>{T=t;if($('#st').classList.contains('on'))draw();setTimeout(()=>requestAnimationFrame(loop),90);};requestAnimationFrame(loop);
+})();
+</script>
+</body></html>
